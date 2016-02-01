@@ -8,7 +8,7 @@
 package org.dspace.xoai.services.impl.cache;
 
 import org.apache.commons.io.FileUtils;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.xoai.services.api.cache.XOAILastCompilationCacheService;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class DSpaceXOAILastCompilationCacheService implements XOAILastCompilatio
     {
         if (file == null)
         {
-            String dir = ConfigurationManager.getProperty("oai", "cache.dir") + DATEFILE;
+            String dir = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("oai.cache.dir") + DATEFILE;
             file = new File(dir);
         }
         return file;

@@ -14,7 +14,7 @@ import com.lyncode.xoai.dataprovider.data.About;
 import com.lyncode.xoai.dataprovider.data.Item;
 import com.lyncode.xoai.dataprovider.xml.xoai.Element;
 import com.lyncode.xoai.dataprovider.xml.xoai.Element.Field;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +66,7 @@ public abstract class DSpaceItem implements Item
     public static String buildIdentifier (String handle) {
         if (_prefix == null)
         {
-            _prefix = ConfigurationManager.getProperty("oai",
-                    "identifier.prefix");
+            _prefix = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("oai.identifier.prefix");
         }
         return "oai:" + _prefix + ":" + handle;
     }

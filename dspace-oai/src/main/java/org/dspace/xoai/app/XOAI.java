@@ -48,9 +48,9 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.MetadataField;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.xoai.exceptions.CompilingException;
 import org.dspace.xoai.services.api.cache.XOAICacheService;
 import org.dspace.xoai.services.api.cache.XOAIItemCacheService;
@@ -92,6 +92,7 @@ public class XOAI {
     private final AuthorizeService authorizeService;
     private final ItemService itemService;
 
+	private static final org.dspace.services.ConfigurationService dspaceConfigurationService = DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private List<String> getFileFormats(Item item) {
         List<String> formats = new ArrayList<>();
@@ -292,7 +293,7 @@ public class XOAI {
     private static boolean getKnownExplanation(Throwable t) {
         if (t instanceof ConnectException) {
             System.err.println("Solr server ("
-                    + ConfigurationManager.getProperty("oai", "solr.url")
+                    + dspaceConfigurationService.getProperty("oai.solr.url")
                     + ") is down, turn it on.");
             return true;
         }
@@ -461,7 +462,7 @@ public class XOAI {
 
     private static void usage() {
         boolean solr = true; // Assuming solr by default
-        solr = !("database").equals(ConfigurationManager.getProperty("oai", "storage"));
+        solr = !("database").equals(dspaceConfigurationService.getProperty("oai.storage"));
 
         if (solr) {
             System.out.println("OAI Manager Script");

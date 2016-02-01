@@ -7,28 +7,25 @@
  */
 package org.dspace.xoai.services.impl.resources;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.lyncode.xoai.dataprovider.services.api.ResourceResolver;
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
-
-import org.dspace.core.ConfigurationManager;
-
-import com.lyncode.xoai.dataprovider.services.api.ResourceResolver;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class DSpaceResourceResolver implements ResourceResolver
 {
     private static final TransformerFactory transformerFactory = TransformerFactory
             .newInstance();
 
-    private final String basePath = ConfigurationManager.getProperty("oai",
-            "config.dir");
+    private final String basePath = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("oai.config.dir");
 
     @Override
     public InputStream getResource(String path) throws IOException

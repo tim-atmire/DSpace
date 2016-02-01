@@ -13,7 +13,7 @@ import com.lyncode.xoai.dataprovider.xml.XmlOutputContext;
 import com.lyncode.xoai.dataprovider.xml.oaipmh.OAIPMH;
 import com.lyncode.xoai.util.Base64Utils;
 import org.apache.commons.io.FileUtils;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.xoai.services.api.cache.XOAICacheService;
 import org.dspace.xoai.services.api.config.ConfigurationService;
 import org.dspace.xoai.util.DateUtils;
@@ -36,7 +36,7 @@ public class DSpaceXOAICacheService implements XOAICacheService {
 
     private static String getBaseDir() {
         if (baseDir == null) {
-            String dir = ConfigurationManager.getProperty("oai", "cache.dir") + REQUEST_DIR;
+            String dir = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("oai.cache.dir") + REQUEST_DIR;
             baseDir = dir;
         }
         return baseDir;

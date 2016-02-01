@@ -15,9 +15,10 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
 import org.dspace.content.authority.Choices;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Utils;
+import org.dspace.services.ConfigurationService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.xoai.data.DSpaceItem;
 
 import java.io.ByteArrayOutputStream;
@@ -49,6 +50,9 @@ public class ItemUtils
 
     private static final BitstreamService bitstreamService
             = ContentServiceFactory.getInstance().getBitstreamService();
+
+	private static final ConfigurationService configurationService
+			= DSpaceServicesFactory.getInstance().getConfigurationService();
 
     private static Element getElement(List<Element> list, String name)
     {
@@ -188,8 +192,7 @@ public class ItemUtils
                     String url = "";
                     String bsName = bit.getName();
                     String sid = String.valueOf(bit.getSequenceID());
-                    String baseUrl = ConfigurationManager.getProperty("oai",
-                            "bitstream.baseUrl");
+                    String baseUrl = configurationService.getProperty("oai.bitstream.baseUrl");
                     String handle = null;
                     // get handle of parent Item of this bitstream, if there
                     // is one:
@@ -273,10 +276,10 @@ public class ItemUtils
         Element repository = create("repository");
         repository.getField().add(
                 createValue("name",
-                        ConfigurationManager.getProperty("dspace.name")));
+                        configurationService.getProperty("dspace.name")));
         repository.getField().add(
                 createValue("mail",
-                        ConfigurationManager.getProperty("mail.admin")));
+                        configurationService.getProperty("mail.admin")));
         metadata.getElement().add(repository);
 
         // Licensing info
