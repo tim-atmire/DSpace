@@ -87,5 +87,5 @@
         </xsl:if>
     </xsl:variable>
 
-
+	<xsl:variable name="author-limit" select="confman:getIntProperty('webui.browse.author-limit', 3)"/>
 </xsl:stylesheet>

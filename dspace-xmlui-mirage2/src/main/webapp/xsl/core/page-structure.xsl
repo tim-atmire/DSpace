@@ -805,7 +805,7 @@
         <!--TODO concat & minify!-->
 
         <script>
-            <xsl:text>if(!window.DSpace){window.DSpace={};}window.DSpace.context_path='</xsl:text><xsl:value-of select="$context-path"/><xsl:text>';window.DSpace.theme_path='</xsl:text><xsl:value-of select="$theme-path"/><xsl:text>';</xsl:text>
+            <xsl:text>if(!window.DSpace){window.DSpace={};}window.DSpace.context_path='</xsl:text><xsl:value-of select="$context-path"/><xsl:text>';window.DSpace.theme_path='</xsl:text><xsl:value-of select="$theme-path"/><xsl:text>';window.DSpace.author_limit=</xsl:text><xsl:value-of select="$author-limit"/><xsl:text>;</xsl:text>
         </script>
 
         <!--inject scripts.html containing all the theme specific javascript references

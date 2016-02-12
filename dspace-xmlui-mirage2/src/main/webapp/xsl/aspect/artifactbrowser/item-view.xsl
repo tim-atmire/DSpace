@@ -233,18 +233,54 @@
                 <xsl:choose>
                     <xsl:when test="dim:field[@element='contributor'][@qualifier='author']">
                         <xsl:for-each select="dim:field[@element='contributor'][@qualifier='author']">
-                            <xsl:call-template name="itemSummaryView-DIM-authors-entry" />
+	                        <xsl:call-template name="itemSummaryView-DIM-authors-entry">
+		                        <xsl:with-param name="index" select="position()"/>
+	                        </xsl:call-template>
                         </xsl:for-each>
+	                    <xsl:if test="count(dim:field[@element='contributor'][@qualifier='author']) &gt; $author-limit">
+		                    <div>
+			                    <a id="item-view-show-all-authors-link">
+				                    <i18n:text>xmlui.ArtifactBrowser.ItemViewer.show-authors</i18n:text>
+			                    </a>
+			                    <a id="item-view-hide-authors-link" class="hidden">
+				                    <i18n:text>xmlui.ArtifactBrowser.ItemViewer.hide-authors</i18n:text>
+			                    </a>
+		                    </div>
+	                    </xsl:if>
                     </xsl:when>
                     <xsl:when test="dim:field[@element='creator']">
                         <xsl:for-each select="dim:field[@element='creator']">
-                            <xsl:call-template name="itemSummaryView-DIM-authors-entry" />
+							<xsl:call-template name="itemSummaryView-DIM-authors-entry">
+								<xsl:with-param name="index" select="position()"/>
+							</xsl:call-template>
                         </xsl:for-each>
+	                    <xsl:if test="count(dim:field[@element='creator']) &gt; $author-limit">
+		                    <div>
+			                    <a id="item-view-show-all-authors-link">
+				                    <i18n:text>xmlui.ArtifactBrowser.ItemViewer.show-authors</i18n:text>
+			                    </a>
+			                    <a id="item-view-hide-authors-link" class="hidden">
+				                    <i18n:text>xmlui.ArtifactBrowser.ItemViewer.hide-authors</i18n:text>
+			                    </a>
+		                    </div>
+	                    </xsl:if>
                     </xsl:when>
                     <xsl:when test="dim:field[@element='contributor']">
                         <xsl:for-each select="dim:field[@element='contributor']">
-                            <xsl:call-template name="itemSummaryView-DIM-authors-entry" />
+	                        <xsl:call-template name="itemSummaryView-DIM-authors-entry">
+		                        <xsl:with-param name="index" select="position()"/>
+	                        </xsl:call-template>
                         </xsl:for-each>
+	                    <xsl:if test="count(dim:field[@element='contributor']) &gt; $author-limit">
+		                    <div>
+			                    <a id="item-view-show-all-authors-link">
+				                    <i18n:text>xmlui.ArtifactBrowser.ItemViewer.show-authors</i18n:text>
+			                    </a>
+			                    <a id="item-view-hide-authors-link" class="hidden">
+				                    <i18n:text>xmlui.ArtifactBrowser.ItemViewer.hide-authors</i18n:text>
+			                    </a>
+		                    </div>
+	                    </xsl:if>
                     </xsl:when>
                     <xsl:otherwise>
                         <i18n:text>xmlui.dri2xhtml.METS-1.0.no-author</i18n:text>
@@ -255,10 +291,21 @@
     </xsl:template>
 
     <xsl:template name="itemSummaryView-DIM-authors-entry">
+	    <xsl:param name="index" select="1"/>
+
         <div>
-            <xsl:if test="@authority">
-                <xsl:attribute name="class"><xsl:text>ds-dc_contributor_author-authority</xsl:text></xsl:attribute>
-            </xsl:if>
+	        <xsl:attribute name="class">
+		        <xsl:text>author-list-</xsl:text>
+		        <xsl:value-of select="$index"/>
+
+		        <xsl:if test="$index &gt; $author-limit">
+			        <xsl:text> hidden</xsl:text>
+		        </xsl:if>
+		        <xsl:if test="@authority">
+			        <xsl:text> ds-dc_contributor_author-authority</xsl:text>
+		        </xsl:if>
+	        </xsl:attribute>
+
             <xsl:copy-of select="node()"/>
         </div>
     </xsl:template>

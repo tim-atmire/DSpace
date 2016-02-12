@@ -241,6 +241,9 @@
 
         <message key="xmlui.ArtifactBrowser.ItemViewer.withdrawn">This item has been withdrawn and is no longer available.</message>
 
+	<message key="xmlui.ArtifactBrowser.ItemViewer.show-authors">Show extra authors</message>
+	<message key="xmlui.ArtifactBrowser.ItemViewer.hide-authors">Collapse author list</message>
+
 	<!-- org.dspace.app.xmlui.artifactbrowser.Navigation.java -->
         <!-- Note: As of DSpace 6.0, org.dspace.app.xmlui.aspect.artifactbrowser.Navigation has been removed. -->
         <!-- The following i18n keys will be left as is as they're referenced by the Discovery's Navigation

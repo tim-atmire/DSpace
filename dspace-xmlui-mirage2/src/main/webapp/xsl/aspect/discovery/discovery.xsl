@@ -202,38 +202,59 @@
                         <xsl:choose>
                             <xsl:when test="dri:list[@n=(concat($handle, ':dc.contributor.author'))]">
                                 <xsl:for-each select="dri:list[@n=(concat($handle, ':dc.contributor.author'))]/dri:item">
-                                    <xsl:variable name="author">
-                                        <xsl:apply-templates select="."/>
-                                    </xsl:variable>
-                                    <span>
-                                        <!--Check authority in the mets document-->
-                                        <xsl:if test="$metsDoc/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='contributor' and @qualifier='author' and . = $author]/@authority">
-                                            <xsl:attribute name="class">
-                                                <xsl:text>ds-dc_contributor_author-authority</xsl:text>
-                                            </xsl:attribute>
-                                        </xsl:if>
-                                        <xsl:apply-templates select="."/>
-                                    </span>
+	                                <xsl:choose>
+		                                <xsl:when test="position() &lt;= $author-limit">
+			                                <xsl:variable name="author">
+				                                <xsl:apply-templates select="."/>
+			                                </xsl:variable>
+			                                <span>
+				                                <!--Check authority in the mets document-->
+				                                <xsl:if test="$metsDoc/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@element='contributor' and @qualifier='author' and . = $author]/@authority">
+					                                <xsl:attribute name="class">
+						                                <xsl:text>ds-dc_contributor_author-authority</xsl:text>
+					                                </xsl:attribute>
+				                                </xsl:if>
+				                                <xsl:apply-templates select="."/>
+			                                </span>
 
-                                    <xsl:if test="count(following-sibling::dri:item) != 0">
-                                        <xsl:text>; </xsl:text>
-                                    </xsl:if>
+			                                <xsl:if test="count(following-sibling::dri:item) != 0">
+				                                <xsl:text>; </xsl:text>
+			                                </xsl:if>
+		                                </xsl:when>
+		                                <xsl:when test="(position() - 1) = $author-limit">
+			                                <xsl:text>et al.</xsl:text>
+		                                </xsl:when>
+	                                </xsl:choose>
                                 </xsl:for-each>
                             </xsl:when>
                             <xsl:when test="dri:list[@n=(concat($handle, ':dc.creator'))]">
                                 <xsl:for-each select="dri:list[@n=(concat($handle, ':dc.creator'))]/dri:item">
-                                    <xsl:apply-templates select="."/>
-                                    <xsl:if test="count(following-sibling::dri:item) != 0">
-                                        <xsl:text>; </xsl:text>
-                                    </xsl:if>
+	                                <xsl:choose>
+		                                <xsl:when test="position() &lt;= $author-limit">
+			                                <xsl:apply-templates select="."/>
+			                                <xsl:if test="count(following-sibling::dri:item) != 0">
+				                                <xsl:text>; </xsl:text>
+			                                </xsl:if>
+		                                </xsl:when>
+		                                <xsl:when test="(position() - 1) = $author-limit">
+			                                <xsl:text>et al.</xsl:text>
+		                                </xsl:when>
+	                                </xsl:choose>
                                 </xsl:for-each>
                             </xsl:when>
                             <xsl:when test="dri:list[@n=(concat($handle, ':dc.contributor'))]">
                                 <xsl:for-each select="dri:list[@n=(concat($handle, ':dc.contributor'))]/dri:item">
-                                    <xsl:apply-templates select="."/>
-                                    <xsl:if test="count(following-sibling::dri:item) != 0">
-                                        <xsl:text>; </xsl:text>
-                                    </xsl:if>
+	                                <xsl:choose>
+		                                <xsl:when test="position() &lt;= $author-limit">
+			                                <xsl:apply-templates select="."/>
+			                                <xsl:if test="count(following-sibling::dri:item) != 0">
+				                                <xsl:text>; </xsl:text>
+			                                </xsl:if>
+		                                </xsl:when>
+		                                <xsl:when test="(position() - 1) = $author-limit">
+			                                <xsl:text>et al.</xsl:text>
+		                                </xsl:when>
+	                                </xsl:choose>
                                 </xsl:for-each>
                             </xsl:when>
                             <xsl:otherwise>
