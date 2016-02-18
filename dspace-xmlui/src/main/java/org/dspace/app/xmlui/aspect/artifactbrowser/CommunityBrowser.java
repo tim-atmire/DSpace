@@ -33,6 +33,8 @@ import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.Reference;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.ItemCountException;
 import org.dspace.browse.ItemCounter;
 import org.dspace.content.Collection;
@@ -91,6 +93,7 @@ public class CommunityBrowser extends AbstractDSpaceTransformer implements Cache
     /** cached validity object */
     private SourceValidity validity;
 
+	protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 
     /**
@@ -361,7 +364,9 @@ public class CommunityBrowser extends AbstractDSpaceTransformer implements Cache
 
         for (Community community : communities)
         {
-            stack.push(newRoot.addChild(community));
+	        if(authorizeService.authorizeActionBoolean(context, community, Constants.READ)) {
+		        stack.push(newRoot.addChild(community));
+	        }
         }
 
         while (!stack.empty())
@@ -379,7 +384,9 @@ public class CommunityBrowser extends AbstractDSpaceTransformer implements Cache
 
             for (Community subcommunity : community.getSubcommunities())
             {
-                stack.push(node.addChild(subcommunity));
+	            if(authorizeService.authorizeActionBoolean(context, subcommunity, Constants.READ)) {
+		            stack.push(node.addChild(subcommunity));
+	            }
             }
 
             // Add any collections to the document.
@@ -387,7 +394,9 @@ public class CommunityBrowser extends AbstractDSpaceTransformer implements Cache
             {
                 for (Collection collection : community.getCollections())
                 {
-                    node.addChild(collection);
+	                if(authorizeService.authorizeActionBoolean(context, collection, Constants.READ)) {
+		                node.addChild(collection);
+	                }
                 }
             }
         }

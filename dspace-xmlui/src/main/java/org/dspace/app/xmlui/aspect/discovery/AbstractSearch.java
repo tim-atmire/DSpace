@@ -27,6 +27,8 @@ import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.*;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
@@ -116,14 +118,13 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
      */
     private SourceValidity validity;
 
+	protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
    	protected CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
     protected ItemService itemService = ContentServiceFactory.getInstance().getItemService();
     protected MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
-
     protected MetadataExposureService metadataExposureService = UtilServiceFactory.getInstance().getMetadataExposureService();
     protected HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
-
 
     /**
      * Generate the unique caching key.
@@ -364,7 +365,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
             List<Item> itemList = new ArrayList<Item>();
             for (DSpaceObject resultDso : queryResults.getDspaceObjects())
             {
-                if(resultDso.getType() == Constants.COMMUNITY || resultDso.getType() == Constants.COLLECTION)
+                if((resultDso.getType() == Constants.COMMUNITY || resultDso.getType() == Constants.COLLECTION) && authorizeService.authorizeActionBoolean(context, resultDso, Constants.READ))
                 {
                     commCollList.add(resultDso);
                 }else
@@ -699,30 +700,40 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
             scope.addOption("/", T_all_of_dspace);
             scope.setOptionSelected("/");
             for (Community community : communityService.findAllTop(context)) {
-                scope.addOption(community.getHandle(), community.getName());
+	            if(authorizeService.authorizeActionBoolean(context, community, Constants.READ)) {
+		            scope.addOption(community.getHandle(), community.getName());
+	            }
             }
         } else if (scopeDSO instanceof Community) {
             // The scope is a community, display all collections contained
             // within
             Community community = (Community) scopeDSO;
-            scope.addOption("/", T_all_of_dspace);
-            scope.addOption(community.getHandle(), community.getName());
-            scope.setOptionSelected(community.getHandle());
+	        if(authorizeService.authorizeActionBoolean(context, community, Constants.READ)) {
+		        scope.addOption("/", T_all_of_dspace);
+		        scope.addOption(community.getHandle(), community.getName());
+		        scope.setOptionSelected(community.getHandle());
 
-            for (Collection collection : community.getCollections()) {
-                scope.addOption(collection.getHandle(), collection.getName());
-            }
+		        for (Collection collection : community.getCollections()) {
+			        if(authorizeService.authorizeActionBoolean(context, collection, Constants.READ)) {
+				        scope.addOption(collection.getHandle(), collection.getName());
+			        }
+		        }
+	        }
         } else if (scopeDSO instanceof Collection) {
             // The scope is a collection, display all parent collections.
             Collection collection = (Collection) scopeDSO;
-            scope.addOption("/", T_all_of_dspace);
-            scope.addOption(collection.getHandle(), collection.getName());
-            scope.setOptionSelected(collection.getHandle());
+	        if(authorizeService.authorizeActionBoolean(context, collection, Constants.READ)) {
+		        scope.addOption("/", T_all_of_dspace);
+		        scope.addOption(collection.getHandle(), collection.getName());
+		        scope.setOptionSelected(collection.getHandle());
 
-            List<Community> communities = communityService.getAllParents(context, collection.getCommunities().get(0));
-            for (Community community : communities) {
-                scope.addOption(community.getHandle(), community.getName());
-            }
+		        List<Community> communities = communityService.getAllParents(context, collection.getCommunities().get(0));
+		        for (Community community : communities) {
+			        if(authorizeService.authorizeActionBoolean(context, community, Constants.READ)) {
+				        scope.addOption(community.getHandle(), community.getName());
+			        }
+		        }
+	        }
         }
     }
     

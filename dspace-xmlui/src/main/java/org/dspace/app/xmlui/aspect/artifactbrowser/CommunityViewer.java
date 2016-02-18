@@ -27,6 +27,8 @@ import org.dspace.app.xmlui.wing.element.ReferenceSet;
 import org.dspace.app.xmlui.wing.element.Reference;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.browse.ItemCountException;
 import org.dspace.browse.ItemCounter;
 import org.dspace.content.Collection;
@@ -34,6 +36,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CommunityService;
+import org.dspace.core.Constants;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.xml.sax.SAXException;
 
@@ -67,8 +70,8 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
     /** Cached validity object */
     private SourceValidity validity;
 
+	protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-
 
     /**
      * Generate the unique caching key.
@@ -127,32 +130,12 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
 	            // Sub communities
 	            for (Community subCommunity : subCommunities)
 	            {
-	                validity.add(context, subCommunity);
-	                
-	                // Include the item count in the validity, only if the value is shown.
-	                boolean showCount = DSpaceServicesFactory.getInstance().getConfigurationService().getBooleanProperty("webui.strengths.show");
-	                if (showCount)
-	        		{
-	                    try {	
-	                    	int size = new ItemCounter(context).getCount(subCommunity);
-	                    	validity.add("size:"+size);
-	                    } catch(ItemCountException e) { /* ignore */ }
-	        		}
+		            addValidity(subCommunity, validity);
 	            }
 	            // Sub collections
 	            for (Collection collection : collections)
 	            {
-	                validity.add(context, collection);
-	                
-	                // Include the item count in the validity, only if the value is shown.
-	                boolean showCount = DSpaceServicesFactory.getInstance().getConfigurationService().getBooleanProperty("webui.strengths.show");
-	                if (showCount)
-	        		{
-	                    try {
-	                    	int size = new ItemCounter(context).getCount(collection);
-	                    	validity.add("size:"+size);
-	                    } catch(ItemCountException e) { /* ignore */ }
-	        		}
+		            addValidity(collection, validity);
 	            }
 
 	            this.validity = validity.complete();
@@ -165,7 +148,31 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
     	}
         return this.validity;
     }
-    
+
+	/**
+	 * Add the validity and show if needed.
+	 *
+	 * @param dso the item to try and add.
+	 * @param validity the validity to add to.
+	 * @throws SQLException
+	 */
+	private void addValidity(DSpaceObject dso, DSpaceValidity validity) throws SQLException {
+		if(authorizeService.authorizeActionBoolean(context, dso, Constants.READ)) {
+			validity.add(context, dso);
+
+			// Include the item count in the validity, only if the value is shown.
+			boolean showCount = DSpaceServicesFactory.getInstance().getConfigurationService().getBooleanProperty("webui.strengths.show");
+			if (showCount) {
+				try {
+					int size = new ItemCounter(context).getCount(dso);
+					validity.add("size:" + size);
+				}
+				catch (ItemCountException ice) {
+					getLogger().warn(ice.getLocalizedMessage(), ice);
+				}
+			}
+		}
+	}
     
     /**
      * Add the community's title and trail links to the page's metadata

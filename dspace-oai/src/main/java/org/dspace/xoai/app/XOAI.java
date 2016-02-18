@@ -234,12 +234,16 @@ public class XOAI {
             doc.addField("item.submitter", item.getSubmitter().getEmail());
         }
         doc.addField("item.deleted", item.isWithdrawn() ? "true" : "false");
-        for (Collection col : item.getCollections())
-            doc.addField("item.collections",
-                    "col_" + col.getHandle().replace("/", "_"));
-        for (Community com : collectionsService.flatParentCommunities(item))
-            doc.addField("item.communities",
-                    "com_" + com.getHandle().replace("/", "_"));
+        for (Collection col : item.getCollections()) {
+	        if(authorizeService.authorizeActionBoolean(context, col, Constants.READ)) {
+		        doc.addField("item.collections", "col_" + col.getHandle().replace("/", "_"));
+	        }
+        }
+        for (Community com : collectionsService.flatParentCommunities(item)) {
+	        if(authorizeService.authorizeActionBoolean(context, com, Constants.READ)) {
+		        doc.addField("item.communities", "com_" + com.getHandle().replace("/", "_"));
+	        }
+        }
 
         List<MetadataValue> allData = itemService.getMetadata(item,
                 Item.ANY, Item.ANY, Item.ANY, Item.ANY);
