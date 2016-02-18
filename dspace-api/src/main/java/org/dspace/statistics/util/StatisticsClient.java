@@ -11,6 +11,7 @@ import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.taskdefs.Get;
 import org.dspace.core.ConfigurationManager;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.statistics.factory.StatisticsServiceFactory;
 import org.dspace.statistics.service.SolrLoggerService;
 
@@ -122,14 +123,6 @@ public class StatisticsClient
         {
             System.out.println("Downloading latest spider IP addresses:");
 
-            // Get the list URLs to download from
-            String urls = ConfigurationManager.getProperty("solr-statistics", "spiderips.urls");
-            if ((urls == null) || ("".equals(urls)))
-            {
-                System.err.println(" - Missing setting from dspace.cfg: solr.spiderips.urls");
-                System.exit(0);
-            }
-
             // Get the location of spiders directory
             File spiders = new File(ConfigurationManager.getProperty("dspace.dir"),"config/spiders");
 
@@ -138,25 +131,29 @@ public class StatisticsClient
                 log.error("Unable to create spiders directory");
             }
 
-            String[] values = urls.split(",");
-            for (String value : values)
-            {
-                value = value.trim();
-                System.out.println(" Downloading: " + value);
+	        // Get the list URLs to download from
+            String[] values = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("solr-statistics.spiderips.urls");
+	        if ((values == null) || (values.length == 0)) {
+		        System.err.println(" - Missing setting from dspace.cfg: solr.spiderips.urls");
+		        System.exit(0);
+	        }
+	        else {
+		        for (String value : values) {
+			        value = value.trim();
+			        System.out.println(" Downloading: " + value);
 
-                URL url = new URL(value);
+			        URL url = new URL(value);
 
-                Get get = new Get();
-                get.setDest(new File(spiders, url.getHost() + url.getPath().replace("/","-")));
-                get.setSrc(url);
-                get.setUseTimestamp(true);
-                get.execute();
+			        Get get = new Get();
+			        get.setDest(new File(spiders, url.getHost() + url.getPath().replace("/", "-")));
+			        get.setSrc(url);
+			        get.setUseTimestamp(true);
+			        get.execute();
 
-            }
-
-
-        } catch (Exception e)
-        {
+		        }
+	        }
+        }
+	    catch (Exception e) {
             System.err.println(" - Error: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);

@@ -28,6 +28,7 @@ import org.apache.cocoon.environment.Response;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.cocoon.reading.AbstractReader;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.handle.factory.HandleServiceFactory;
@@ -107,15 +108,14 @@ public class HandleResolverReader extends AbstractReader implements Recyclable {
             {
                 List<String> prefixes = new ArrayList<String>();
                 prefixes.add(handleService.getPrefix());
-                String additionalPrefixes = DSpaceServicesFactory.getInstance().getConfigurationService()
-                        .getProperty("handle.additional.prefixes");
-                if (StringUtils.isNotBlank(additionalPrefixes))
-                {
-                    for (String apref : additionalPrefixes.split(","))
-                    {
+                String[] additionalPrefixes = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("handle.additional.prefixes");
+
+                if (ArrayUtils.isNotEmpty(additionalPrefixes)) {
+                    for (String apref : additionalPrefixes) {
                         prefixes.add(apref.trim());
                     }
                 }
+
                 jsonString = gson.toJson(prefixes);
             }
             else if (action.equals("listhandles"))

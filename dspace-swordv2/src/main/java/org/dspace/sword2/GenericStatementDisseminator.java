@@ -12,6 +12,7 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.swordapp.server.OriginalDeposit;
 import org.swordapp.server.ResourcePart;
 import org.swordapp.server.Statement;
@@ -177,22 +178,23 @@ public abstract class GenericStatementDisseminator
 
     private List<String> getIncludeBundles()
     {
-        String cfg = ConfigurationManager
-                .getProperty("swordv2-server", "statement.bundles");
-        if (cfg == null || "".equals(cfg))
-        {
-            cfg = "ORIGINAL, SWORD";
-        }
-        String[] bits = cfg.split(",");
         List<String> include = new ArrayList<String>();
-        for (String bit : bits)
-        {
-            String bundleName = bit.trim().toUpperCase();
-            if (!include.contains(bundleName))
-            {
-                include.add(bundleName);
-            }
-        }
+	    String[] bits = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("swordv2-server.statement.bundles");
+
+	    if(bits == null || bits.length == 0) {
+		    include.add("ORIGINAL");
+		    include.add("SWORD");
+	    }
+	    else {
+		    for (String bit : bits) {
+			    String bundleName = bit.trim().toUpperCase();
+
+			    if (!include.contains(bundleName)) {
+				    include.add(bundleName);
+			    }
+		    }
+	    }
+
         return include;
     }
 

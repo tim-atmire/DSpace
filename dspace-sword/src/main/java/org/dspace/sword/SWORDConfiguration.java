@@ -15,6 +15,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.BitstreamFormat;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.purl.sword.base.SWORDErrorException;
 
 import java.util.ArrayList;
@@ -118,14 +119,13 @@ public class SWORDConfiguration
                 .getProperty("sword-server", "failed-package.dir");
 
         // Get the accepted formats
-        String acceptsProperty = ConfigurationManager
-                .getProperty("sword-server", "accepts");
+	    String[] acceptsProperties = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("sword-server.accepts");
         swordaccepts = new ArrayList<String>();
-        if (acceptsProperty == null)
+        if (acceptsProperties == null)
         {
-            acceptsProperty = "application/zip";
+            swordaccepts.add("application/zip");
         }
-        for (String element : acceptsProperty.split(","))
+        for (String element : acceptsProperties)
         {
             swordaccepts.add(element.trim());
         }

@@ -14,6 +14,7 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.swordapp.server.*;
 
 import java.io.IOException;
@@ -115,9 +116,7 @@ public class SimpleDCEntryIngester extends AbstractSimpleDC
     private void removeMetadata(Context context, Item item)
             throws DSpaceSwordException
     {
-        String raw = ConfigurationManager
-                .getProperty("swordv2-server", "metadata.replaceable");
-        String[] parts = raw.split(",");
+        String[] parts = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("swordv2-server.metadata.replace");
         for (String part : parts)
         {
             MetadataValueInfo info = this

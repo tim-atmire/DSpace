@@ -968,15 +968,11 @@ public class SolrServiceImpl implements SearchService, IndexingService {
 
 
             List<String> toProjectionFields = new ArrayList<String>();
-            String projectionFieldsString = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("discovery.index.projection");
-            if(projectionFieldsString != null){
-                if(projectionFieldsString.indexOf(",") != -1){
-                    for (int i = 0; i < projectionFieldsString.split(",").length; i++) {
-                        toProjectionFields.add(projectionFieldsString.split(",")[i].trim());
-                    }
-                } else {
-                    toProjectionFields.add(projectionFieldsString);
-                }
+            String[] projectionFields = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("discovery.index.projection");
+            if(projectionFields != null && projectionFields.length > 0){
+	            for (int i = 0; i < projectionFields.length; i++) {
+		            toProjectionFields.add(projectionFields[i].trim());
+	            }
             }
 
             List<String> toIgnoreMetadataFields = SearchUtils.getIgnoredMetadataFields(item.getType());

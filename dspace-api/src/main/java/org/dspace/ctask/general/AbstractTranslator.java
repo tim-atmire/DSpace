@@ -15,6 +15,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.curate.AbstractCurationTask;
 import org.dspace.curate.Curator;
 import org.dspace.curate.Distributive;
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,10 +53,8 @@ public abstract class AbstractTranslator extends AbstractCurationTask
         // Load configuration
         authLang = ConfigurationManager.getProperty("default.locale");
         authLangField = ConfigurationManager.getProperty(PLUGIN_PREFIX, "field.language");
-        String toTranslateStr = ConfigurationManager.getProperty(PLUGIN_PREFIX, "field.targets");
-        String langsStr = ConfigurationManager.getProperty(PLUGIN_PREFIX, "language.targets");
-        toTranslate = toTranslateStr.split(",");
-        langs = langsStr.split(",");
+        toTranslate = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty(PLUGIN_PREFIX + ".field.targets");
+        langs = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty(PLUGIN_PREFIX + ".language.targets");
 
         if(!(toTranslate.length > 0 && langs.length > 0))
         {

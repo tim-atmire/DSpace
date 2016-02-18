@@ -17,6 +17,7 @@ import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LegacyPluginServiceImpl;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.jaxen.function.FalseFunction;
 import org.swordapp.server.SwordConfiguration;
 import org.swordapp.server.SwordError;
@@ -104,16 +105,16 @@ public class SwordConfigurationDSpace implements SwordConfiguration
                 .getProperty("swordv2-server", "failed-package.dir");
 
         // Get the accepted formats
-        String acceptsProperty = ConfigurationManager
-                .getProperty("swordv2-server", "accepts");
+	    String[] acceptsProperties = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("swordv2-server.accepts");
         swordaccepts = new ArrayList<String>();
-        if (acceptsProperty == null)
-        {
-            acceptsProperty = "application/zip";
+
+        if (acceptsProperties == null || acceptsProperties.length == 0) {
+            swordaccepts.add("application/zip");
         }
-        for (String element : acceptsProperty.split(","))
-        {
-            swordaccepts.add(element.trim());
+	    else {
+	        for(String element : acceptsProperties) {
+		        swordaccepts.add(element.trim());
+	        }
         }
 
         // find out if community deposit is allowed

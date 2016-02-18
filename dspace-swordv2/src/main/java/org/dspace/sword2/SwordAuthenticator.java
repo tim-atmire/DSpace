@@ -29,6 +29,7 @@ import org.dspace.content.*;
 import org.apache.log4j.Logger;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.swordapp.server.AuthCredentials;
 import org.swordapp.server.SwordAuthException;
 import org.swordapp.server.SwordError;
@@ -1001,15 +1002,6 @@ public class SwordAuthenticator
 
     private boolean allowedToMediate(Context context)
     {
-        // get the configuration
-        String mediatorCfg = ConfigurationManager
-                .getProperty("swordv2-server", "on-behalf-of.update.mediators");
-        if (mediatorCfg == null)
-        {
-            // if there's no explicit list of mediators, then anyone can mediate
-            return true;
-        }
-
         // get the email and netid of the mediator
         EPerson eperson = context.getCurrentUser();
         if (eperson == null)
@@ -1019,21 +1011,26 @@ public class SwordAuthenticator
         String email = eperson.getEmail();
         String netid = eperson.getNetid();
 
-        String[] mediators = mediatorCfg.split(",");
-        for (String mediator : mediators)
-        {
-            String m = mediator.trim();
-            if (email != null && m.equals(email.trim()))
-            {
-                return true;
-            }
-            if (netid != null && m.equals(netid.trim()))
-            {
-                return true;
-            }
-        }
+        String[] mediators = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("swordv2-server.on-behalf-of.update.mediators");
 
-        return false;
+	    if(mediators == null || mediators.length == 0) {
+		    // if there's no explicit list of mediators, then anyone can mediate
+		    return true;
+	    }
+	    else {
+		    for (String mediator : mediators) {
+			    String m = mediator.trim();
+
+			    if (email != null && m.equals(email.trim())) {
+				    return true;
+			    }
+			    if (netid != null && m.equals(netid.trim())) {
+				    return true;
+			    }
+		    }
+
+		    return false;
+	    }
     }
 
     /**

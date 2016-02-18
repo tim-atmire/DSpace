@@ -44,6 +44,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.statistics.service.SolrLoggerService;
 import org.dspace.statistics.util.DnsLookup;
 import org.dspace.statistics.util.LocationUtils;
@@ -1104,9 +1105,8 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             solrQuery.setSortField(sort, (ascending ? SolrQuery.ORDER.asc : SolrQuery.ORDER.desc));
         }
 
-        String bundles;
-        if((bundles = ConfigurationManager.getProperty("solr-statistics", "query.filter.bundles")) != null && 0 < bundles.length()){
-
+	    String[] bundles = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("solr-statistics.query.filter.bundles") ;
+        if(bundles != null && 0 < bundles.length) {
             /**
              * The code below creates a query that will allow only records which do not have a bundlename
              * (items, collections, ...) or bitstreams that have a configured bundle name
@@ -1114,11 +1114,10 @@ public class SolrLoggerServiceImpl implements SolrLoggerService, InitializingBea
             StringBuffer bundleQuery = new StringBuffer();
             //Also add the possibility that if no bundle name is there these results will also be returned !
             bundleQuery.append("-(bundleName:[* TO *]");
-            String[] split = bundles.split(",");
-            for (int i = 0; i < split.length; i++) {
-                String bundle = split[i].trim();
+            for (int i = 0; i < bundles.length; i++) {
+                String bundle = bundles[i].trim();
                 bundleQuery.append("-bundleName:").append(bundle);
-                if(i != split.length - 1){
+                if(i != bundles.length - 1){
                     bundleQuery.append(" AND ");
                 }
             }

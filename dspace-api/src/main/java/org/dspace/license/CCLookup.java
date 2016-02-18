@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.jaxen.JaxenException;
 import org.jaxen.jdom.JDOMXPath;
 import org.jdom.Attribute;
@@ -62,9 +63,9 @@ public class CCLookup {
 		String jurisProp = ConfigurationManager.getProperty("cc.license.jurisdiction");
 		jurisdiction = (jurisProp != null) ? jurisProp : "";
 		
-		String filterList = ConfigurationManager.getProperty("cc.license.classfilter");
-		if (filterList != null) {
-			for (String name: filterList.split(",")) {
+		String[] filterList = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("cc.license.classfilter");
+		if (filterList != null && filterList.length > 0) {
+			for (String name: filterList) {
 				lcFilter.add(name.trim());
 			}
 		}

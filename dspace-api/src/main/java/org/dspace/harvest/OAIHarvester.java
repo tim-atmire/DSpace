@@ -50,6 +50,7 @@ import org.dspace.handle.service.HandleService;
 import org.dspace.harvest.factory.HarvestServiceFactory;
 import org.dspace.harvest.service.HarvestedCollectionService;
 import org.dspace.harvest.service.HarvestedItemService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -613,44 +614,35 @@ public class OAIHarvester {
      */
     protected String extractHandle(Item item)
     {
-    	String acceptedHandleServersString = ConfigurationManager.getProperty("oai", "harvester.acceptedHandleServer");
-    	if (acceptedHandleServersString == null)
-        {
-            acceptedHandleServersString = "hdl.handle.net";
+	    String[] acceptedHandleServers = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("oai.harvester.acceptedHandleServer");
+    	if (acceptedHandleServers == null || acceptedHandleServers.length == 0) {
+		    acceptedHandleServers = new String[]{"hdl.handle.net"};
         }
 
-    	String rejectedHandlePrefixString = ConfigurationManager.getProperty("oai", "harvester.rejectedHandlePrefix");
-    	if (rejectedHandlePrefixString == null)
-        {
-            rejectedHandlePrefixString = "123456789";
+	    String[] rejectedHandlePrefixes = DSpaceServicesFactory.getInstance().getConfigurationService().getArrayProperty("oai.harvester.rejectedHandlePrefix");
+    	if (rejectedHandlePrefixes == null || rejectedHandlePrefixes.length == 0) {
+		    rejectedHandlePrefixes = new String[]{"123456789"};
         }
 
     	List<MetadataValue> values = itemService.getMetadata(item, "dc", "identifier", Item.ANY, Item.ANY);
 
-    	if (values.size() > 0 && !acceptedHandleServersString.equals(""))
-    	{
-    		String[] acceptedHandleServers = acceptedHandleServersString.split(",");
-    		String[] rejectedHandlePrefixes = rejectedHandlePrefixString.split(",");
-
-    		for (MetadataValue value : values)
-    		{
+    	if (values.size() > 0 && acceptedHandleServers.length > 0) {
+    		for (MetadataValue value : values) {
     			//     0   1       2         3   4
     			//   http://hdl.handle.net/1234/12
     			String[] urlPieces = value.getValue().split("/");
-    			if (urlPieces.length != 5)
-                {
+
+    			if (urlPieces.length != 5) {
                     continue;
                 }
 
     			for (String server : acceptedHandleServers) {
     				if (urlPieces[2].equals(server)) {
     					for (String prefix : rejectedHandlePrefixes) {
-    						if (!urlPieces[3].equals(prefix))
-                            {
+    						if (!urlPieces[3].equals(prefix)) {
                                 return urlPieces[3] + "/" + urlPieces[4];
                             }
     					}
-
     				}
     			}
     		}
