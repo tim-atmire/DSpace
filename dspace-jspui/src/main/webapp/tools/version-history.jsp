@@ -7,6 +7,7 @@
     http://www.dspace.org/license/
 
 --%>
+<%@page import="java.util.List"%>
 <%--
   - Version history table with functionalities
   -
@@ -20,6 +21,7 @@
 <%@page import="org.dspace.versioning.Version"%>
 <%@page import="org.dspace.app.webui.util.VersionUtil"%>
 <%@page import="org.dspace.versioning.VersionHistory"%>
+<%@page import="org.dspace.versioning.factory.VersionServiceFactory"%>
 <%@ page import="java.util.UUID" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
@@ -31,12 +33,13 @@
 
 <%
     UUID itemID = (UUID)request.getAttribute("itemID");
-	String versionID = (String)request.getAttribute("versionID");
-	Item item = (Item) request.getAttribute("item");
-	Boolean removeok = UIUtil.getBoolParameter(request, "delete");
-	Context context = UIUtil.obtainContext(request);
-	
-	request.setAttribute("LanguageSwitch", "hide");
+    String versionID = (String)request.getAttribute("versionID");
+    Item item = (Item) request.getAttribute("item");
+    Boolean removeok = UIUtil.getBoolParameter(request, "delete");
+    Context context = UIUtil.obtainContext(request);
+    boolean show_submitter = ((Boolean) request.getAttribute("showSubmitter")).booleanValue();
+
+    request.setAttribute("LanguageSwitch", "hide");
 %>
 <c:set var="dspace.layout.head.last" scope="request">
 <script type="text/javascript">
@@ -73,7 +76,7 @@ var j = jQuery.noConflict();
     <%-- Versioning table --%>
 <%
                 
-	VersionHistory history = VersionUtil.retrieveVersionHistory(context, item);
+        List<Version> allVersions = (List<Version>) request.getAttribute("allVersions");
 						 
 %>
 	<div id="versionHistory">
@@ -86,16 +89,17 @@ var j = jQuery.noConflict();
 			<th id="t1" class="oddRowEvenCol"><fmt:message key="jsp.version.history.column1"/></th>
 			<th 			
 				id="t2" class="oddRowOddCol"><fmt:message key="jsp.version.history.column2"/></th>
-			<th 
+			<% if (show_submitter) { %>
+                        <th 
 				id="t3" class="oddRowEvenCol"><fmt:message key="jsp.version.history.column3"/></th>
+                        <% } %>
 			<th 				
 				id="t4" class="oddRowOddCol"><fmt:message key="jsp.version.history.column4"/></th>
 			<th 
 				id="t5" class="oddRowEvenCol"><fmt:message key="jsp.version.history.column5"/> </th>
 		</tr>
 		
-		<% for(Version versRow : history.getVersions()) {  
-		
+                <% for(Version versRow : allVersions) {
 			EPerson versRowPerson = versRow.getEPerson();
 			String[] identifierPath = VersionUtil.addItemIdentifier(item, versRow);
 
@@ -104,7 +108,9 @@ var j = jQuery.noConflict();
 			<td headers="t0"><input type="checkbox" class="remove" name="remove" value="<%=versRow.getId()%>"/></td>
 			<td headers="t1" class="oddRowEvenCol"><%= versRow.getVersionNumber() %></td>
 			<td headers="t2" class="oddRowOddCol"><a href="<%= request.getContextPath() + identifierPath[0] %>"><%= identifierPath[1] %></a><%= item.equals(versRow.getItem())?"<span class=\"glyphicon glyphicon-asterisk\"></span>":""%></td>
+                        <% if (show_submitter) { %>
 			<td headers="t3" class="oddRowEvenCol"><a href="mailto:<%= versRowPerson.getEmail() %>"><%=versRowPerson.getFullName() %></a></td>
+                        <% } %>
 			<td headers="t4" class="oddRowOddCol"><%= versRow.getVersionDate() %></td>
 			<td headers="t5" class="oddRowEvenCol"><%= versRow.getSummary() %><a class="btn btn-default pull-right" href="<%= request.getContextPath() %>/tools/version?itemID=<%= versRow.getItem().getID()%>&versionID=<%= versRow.getId() %>&submit_update_version"><span class="glyphicon glyphicon-pencil"></span>&nbsp;<fmt:message key="jsp.version.history.update"/></a></td>
 		</tr>
