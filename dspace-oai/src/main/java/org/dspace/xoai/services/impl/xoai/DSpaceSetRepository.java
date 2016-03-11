@@ -12,14 +12,18 @@ import com.lyncode.xoai.dataprovider.core.Set;
 import com.lyncode.xoai.dataprovider.services.api.SetRepository;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.xoai.data.DSpaceSet;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
@@ -53,7 +57,7 @@ public class DSpaceSetRepository implements SetRepository
     {
         try
         {
-            List<Community> communityList = communityService.findAll(_context);
+            List<Community> communityList = communityService.findAuthorized(_context, Collections.singletonList(Constants.READ));
 
             return communityList.size();
         }
@@ -68,7 +72,7 @@ public class DSpaceSetRepository implements SetRepository
     {
         try
         {
-            List<Collection> collectionList = collectionService.findAll(_context);
+            List<Collection> collectionList = collectionService.findAuthorizedOptimized(_context, Constants.READ);
 
             return collectionList.size();
         }
@@ -97,9 +101,11 @@ public class DSpaceSetRepository implements SetRepository
 
             for(Community community : communityList)
             {
-                array.add(DSpaceSet.newDSpaceCommunitySet(
-                        community.getHandle(),
-                        community.getName()));
+	            if(AuthorizeServiceFactory.getInstance().getAuthorizeService().authorizeActionBoolean(_context, community, Constants.READ)) {
+		            array.add(DSpaceSet.newDSpaceCommunitySet(
+				            community.getHandle(),
+				            community.getName()));
+	            }
             }
         }
         catch (SQLException e)
@@ -127,9 +133,11 @@ public class DSpaceSetRepository implements SetRepository
 
             for(Collection collection : collectionList)
             {
-                array.add(DSpaceSet.newDSpaceCollectionSet(
-                        collection.getHandle(),
-                        collection.getName()));
+	            if(AuthorizeServiceFactory.getInstance().getAuthorizeService().authorizeActionBoolean(_context, collection, Constants.READ)) {
+		            array.add(DSpaceSet.newDSpaceCollectionSet(
+				            collection.getHandle(),
+				            collection.getName()));
+	            }
             }
         }
         catch (SQLException e)
